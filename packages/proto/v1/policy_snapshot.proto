@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package shadowapi.policy.v1;
+
+option go_package = "github.com/shadow-api-hunter/packages/proto/v1;protov1";
+
+enum SignatureAlgorithm {
+  SIGNATURE_ALGORITHM_UNSPECIFIED = 0;
+  SIGNATURE_ALGORITHM_ED25519 = 1;
+  SIGNATURE_ALGORITHM_ECDSA_P256_SHA256 = 2;
+  SIGNATURE_ALGORITHM_RSA_PSS_SHA256 = 3;
+}
+
+message CryptographicSignature {
+  string key_id = 1;                           // Identifier of enterprise signing key
+  SignatureAlgorithm algorithm = 2;
+  bytes signature_bytes = 3;                  // Raw digital signature over canonical payload
+  int64 signed_at_utc = 4;
+}
+
+message DetectionRule {
+  string rule_id = 1;
+  string name = 2;
+  string category = 3;
+  string severity = 4;
+  string condition_expression = 5;            // Safe policy-dsl expression
+  bool is_active = 6;
+  repeated string applicable_environments = 7;
+}
+
+message ActiveVerificationScope {
+  string scope_id = 1;
+  string approved_by_user_id = 2;
+  int64 approval_timestamp_utc = 3;
+  int64 expires_at_utc = 4;
+  string target_asset_id = 5;
+  int32 max_requests_per_second = 6;
+  int32 max_total_requests = 7;
+  bool allowed_while_disconnected = 8;        // Strict default: FALSE per OFFLINE_OPERATION.md
+}
+
+// PolicySnapshot is distributed by Windows Management and verified by edge Linux nodes.
+// Supports at least 168 hours of offline autonomy per ADR-0004.
+message PolicySnapshot {
+  string schema_version = 1;                  // "v1.0.0"
+  string policy_id = 2;                       // UUIDv4
+  string version_tag = 3;                     // e.g. "policy-2026-10-15.1"
+  int64 sequence_number = 4;                  // Monotonically increasing generation number (anti-rollback)
+  string tenant_id = 5;
+  string target_node_id = 6;                  // Node binding (or "*" for tenant broadcast)
+  
+  int64 issued_at_utc = 7;
+  int64 valid_until_utc = 8;
+  int32 offline_lease_hours = 9;              // Guaranteed >= 168 hours
+
+  repeated DetectionRule detection_rules = 10;
+  repeated ActiveVerificationScope active_scopes = 11;
+  repeated string revoked_policy_versions = 12;
+
+  // Cryptographic Signature Envelope
+  CryptographicSignature signature = 13;
+}

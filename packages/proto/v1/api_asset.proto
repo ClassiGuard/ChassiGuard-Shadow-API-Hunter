@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package shadowapi.inventory.v1;
+
+import "packages/proto/v1/api_observation.proto";
+
+option go_package = "github.com/shadow-api-hunter/packages/proto/v1;protov1";
+
+enum InventoryStatus {
+  INVENTORY_STATUS_UNSPECIFIED = 0;
+  INVENTORY_STATUS_DISCOVERED = 1;     // Inferred from telemetry, not yet correlated to catalog
+  INVENTORY_STATUS_MANAGED = 2;        // Matched approved registry/spec with active ownership
+  INVENTORY_STATUS_SHADOW = 3;         // Active/reachable endpoint absent from approved catalog
+  INVENTORY_STATUS_ZOMBIE = 4;         // Deprecated or retired endpoint/version still observed
+  INVENTORY_STATUS_ROGUE = 5;          // Explicitly unauthorized by policy or governance
+  INVENTORY_STATUS_UNKNOWN_OWNER = 6;  // In inventory but missing verified owner assignment
+}
+
+message EndpointParameter {
+  string name = 1;
+  string in = 2;                       // "path", "query", "header"
+  string inferred_type = 3;            // "string", "integer", "uuid"
+  bool is_required = 4;
+  bool is_sensitive = 5;
+}
+
+message ApiAsset {
+  string schema_version = 1;          // "v1.0.0"
+  string asset_id = 2;                // Deterministic UUID based on tenant + host + route + method
+  string tenant_id = 3;
+  string environment = 4;              // "production", "staging", "development"
+  string service_id = 5;              // Logical service identity / namespace
+  string host_domain = 6;
+  string normalized_route = 7;        // e.g. "/api/v1/orders/{orderId}"
+  shadowapi.telemetry.v1.HttpMethod http_method = 8;
+  string version_tag = 9;             // Extracted API version (e.g. "v1", "v2.3")
+  string owner_id = 10;               // Team or developer email / ID
+  InventoryStatus inventory_status = 11;
+  string spec_revision = 12;          // Git commit / checksum of matched OpenAPI spec
+  int64 first_seen_utc = 13;          // Epoch millis
+  int64 last_seen_utc = 14;
+  int64 observation_count = 15;
+  int32 source_count = 16;            // Distinct sensors reporting this asset
+  double confidence = 17;             // 0.0 to 1.0 confidence in route template accuracy
+  repeated string sensitivity_tags = 18; // ["PII", "PCI", "AUTH"]
+  string change_history_ref = 19;     // Reference to delta audit log
+  repeated EndpointParameter parameters = 20;
+  double risk_score = 21;             // 0.0 to 100.0 computed risk
+  bool active_verification_approved = 22; // Requires operator sign-off before active test
+}

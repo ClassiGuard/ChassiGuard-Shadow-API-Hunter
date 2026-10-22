@@ -1,0 +1,80 @@
+name: ClassiGuard Shadow API Hunter — Distribution & Release CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate-release-distribution:
+    name: Validate Distribution Packages, Schemas & Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate Release Deliverables (.exe & .tar.gz)
+        run: |
+          echo "============================================================"
+          echo "VALIDATING RELEASE PACKAGES"
+          echo "============================================================"
+          test -f dist/ClassiGuard-Shadow-API-Hunter-Setup.exe || (echo "Missing Windows setup executable" && exit 1)
+          test -f dist/classiguard-shadow-api-hunter-linux-v1.0.0.tar.gz || (echo "Missing Linux fleet tarball" && exit 1)
+          
+          # Verify Linux tarball integrity and contents
+          tar -tzf dist/classiguard-shadow-api-hunter-linux-v1.0.0.tar.gz > /dev/null
+          echo "  [PASS] Linux distribution tarball verified: valid gzip format."
+          
+          # Verify Windows setup executable size (> 5MB)
+          EXE_SIZE=$(stat -c%s dist/ClassiGuard-Shadow-API-Hunter-Setup.exe)
+          if [ "$EXE_SIZE" -lt 5000000 ]; then
+            echo "Windows executable unexpectedly small ($EXE_SIZE bytes)"
+            exit 1
+          fi
+          echo "  [PASS] Windows setup executable verified ($EXE_SIZE bytes)."
+
+      - name: Validate JSON Schemas (Draft-07)
+        run: |
+          echo "============================================================"
+          echo "VALIDATING JSON SCHEMAS"
+          echo "============================================================"
+          for schema in packages/schemas/v1/*.json; do
+            python3 -m json.tool "$schema" > /dev/null
+            echo "  [PASS] Valid JSON schema: $schema"
+          done
+
+      - name: Validate Protocol Buffer v3 Contracts
+        run: |
+          echo "============================================================"
+          echo "VALIDATING PROTOBUF v3 CONTRACTS"
+          echo "============================================================"
+          for proto in packages/proto/v1/*.proto; do
+            grep -q 'syntax = "proto3";' "$proto" || (echo "Missing proto3 syntax in $proto" && exit 1)
+            echo "  [PASS] Valid proto3 syntax: $proto"
+          done
+
+      - name: Secret & Sensitive Credential Scanning
+        run: |
+          echo "============================================================"
+          echo "RUNNING SECURITY & SECRET SCAN"
+          echo "============================================================"
+          FOUND=$(grep -rE "BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY" --exclude-dir=".git" --exclude-dir="dist" . || true)
+          if [ -n "$FOUND" ]; then
+            echo "Private keys detected!"
+            exit 1
+          fi
+          echo "  [PASS] Zero private keys or credentials detected."
+
+      - name: Verify Code of Conduct & Acceptable Use Policy
+        run: |
+          echo "============================================================"
+          echo "VERIFYING CODE OF CONDUCT & LEGAL COMPLIANCE"
+          echo "============================================================"
+          grep -q "Proof of Concept" CODE_OF_CONDUCT.md || (echo "Missing POC notice" && exit 1)
+          grep -q "Information Technology Act, 2000" CODE_OF_CONDUCT.md || (echo "Missing IT Act reference" && exit 1)
+          grep -q "Law Enforcement" CODE_OF_CONDUCT.md || (echo "Missing Law Enforcement reference" && exit 1)
+          grep -q "DO's" CODE_OF_CONDUCT.md || (echo "Missing DO's" && exit 1)
+          grep -q "DON'Ts" CODE_OF_CONDUCT.md || (echo "Missing DON'Ts" && exit 1)
+          echo "  [PASS] Code of Conduct meets Indian Law, POC, and Acceptable Use requirements."

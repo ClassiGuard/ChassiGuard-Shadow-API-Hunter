@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://shadow-api-hunter.enterprise/schemas/v1/finding.schema.json",
+  "title": "Finding",
+  "description": "Security finding and risk hypothesis entity",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "finding_id",
+    "tenant_id",
+    "rule_id",
+    "category",
+    "severity",
+    "confidence",
+    "status",
+    "asset_ids",
+    "created_at_utc",
+    "updated_at_utc"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "finding_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "rule_id": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "SHADOW_ENDPOINT",
+        "ZOMBIE_VERSION",
+        "SENSITIVE_DATA_EXPOSURE",
+        "AUTH_POSTURE_ANOMALY",
+        "BOLA_HYPOTHESIS",
+        "BFLA_HYPOTHESIS",
+        "ROGUE_ENDPOINT"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "VERIFIED"]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "HYPOTHESIS",
+        "UNDER_REVIEW",
+        "VALIDATED",
+        "FALSE_POSITIVE",
+        "ACCEPTED_RISK"
+      ]
+    },
+    "asset_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reproduction_scope_id": {
+      "type": "string"
+    },
+    "policy_version": {
+      "type": "string"
+    },
+    "model_version": {
+      "type": "string"
+    },
+    "risk_details": {
+      "type": "object",
+      "required": ["overall_score", "exposure_likelihood", "business_impact", "reason_codes"],
+      "properties": {
+        "overall_score": { "type": "number", "minimum": 0.0, "maximum": 100.0 },
+        "exposure_likelihood": { "type": "number", "minimum": 0.0, "maximum": 10.0 },
+        "business_impact": { "type": "number", "minimum": 0.0, "maximum": 10.0 },
+        "confidence_multiplier": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "reason_codes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "first_observed_utc": { "type": "integer" },
+    "last_observed_utc": { "type": "integer" },
+    "created_at_utc": { "type": "integer" },
+    "updated_at_utc": { "type": "integer" },
+    "assigned_to_user_id": { "type": "string" },
+    "suppression_reason": { "type": "string" },
+    "suppression_expires_utc": { "type": "integer" }
+  },
+  "additionalProperties": false
+}

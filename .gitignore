@@ -1,0 +1,79 @@
+# Dependencies
+node_modules/
+vendor/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Build outputs and temp files
+build/
+/bin/
+obj/
+target/
+*.dll
+*.so
+*.dylib
+*.pdb
+
+# Allow release distribution deliverables
+/dist/staging/
+/dist/classiguard-linux/
+/dist/shadow-api-hunter-enterprise*
+
+# Allow the single standalone Windows setup executable
+*.exe
+!dist/ClassiGuard-Shadow-API-Hunter-Setup.exe
+
+# IDE and OS
+.vs/
+.vscode/
+.idea/
+Thumbs.db
+[Dd]esktop.ini
+.DS_Store
+
+# Logs and runtime artifacts
+*.log
+/logs/
+/spool/
+/data/
+*.tmp
+
+# Test coverage & caches
+coverage/
+.nyc_output/
+.pytest_cache/
+.coverage
+*.lcov
+
+# Environment & Secrets (Never commit production credentials)
+.env
+.env.local
+*.pfx
+*.pem
+*.key
+
+# Private Engine Code & Internal Implementations (Preserved in private branch)
+apps/
+services/
+infra/
+installers/
+scripts/
+tests/
+packages/authz/
+packages/config/
+packages/policy-dsl/
+packages/telemetry/
+/toolchains.json
+/package.json
+
+# Internal Architecture, Product Plans & Documentation (Strictly Private)
+docs/
+.agent/
+.cursor/
+AGENTS.md
+ANTIGRAVITY.md
+CODEX.md
+CONTEXT.md
+MANIFEST.json

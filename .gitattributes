@@ -1,0 +1,27 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Enforce LF for Linux scripts and containers
+*.sh text eol=lf
+*.bash text eol=lf
+*.service text eol=lf
+Dockerfile* text eol=lf
+
+# Enforce CRLF for Windows-specific script files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Text files
+*.md text
+*.json text
+*.yaml text
+*.yml text
+*.proto text
+*.sql text
+*.rs text
+*.go text
+*.ts text
+*.tsx text
+*.js text
+*.py text

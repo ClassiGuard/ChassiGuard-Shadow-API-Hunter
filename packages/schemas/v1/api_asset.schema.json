@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://shadow-api-hunter.enterprise/schemas/v1/api_asset.schema.json",
+  "title": "ApiAsset",
+  "description": "API Inventory Asset entity representing discovered or managed endpoints",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "asset_id",
+    "tenant_id",
+    "environment",
+    "service_id",
+    "normalized_route",
+    "http_method",
+    "inventory_status",
+    "first_seen_utc",
+    "last_seen_utc"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "asset_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["production", "staging", "development", "qa", "sandbox"]
+    },
+    "service_id": {
+      "type": "string"
+    },
+    "host_domain": {
+      "type": "string"
+    },
+    "normalized_route": {
+      "type": "string"
+    },
+    "http_method": {
+      "type": "string",
+      "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "CONNECT", "TRACE"]
+    },
+    "version_tag": {
+      "type": "string"
+    },
+    "owner_id": {
+      "type": "string"
+    },
+    "inventory_status": {
+      "type": "string",
+      "enum": [
+        "DISCOVERED",
+        "MANAGED",
+        "SHADOW",
+        "ZOMBIE",
+        "ROGUE",
+        "UNKNOWN_OWNER"
+      ]
+    },
+    "spec_revision": {
+      "type": "string"
+    },
+    "first_seen_utc": {
+      "type": "integer"
+    },
+    "last_seen_utc": {
+      "type": "integer"
+    },
+    "observation_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "source_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "sensitivity_tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "change_history_ref": {
+      "type": "string"
+    },
+    "risk_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "active_verification_approved": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}

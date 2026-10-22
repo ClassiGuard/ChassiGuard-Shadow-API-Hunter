@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package shadowapi.telemetry.v1;
+
+option go_package = "github.com/shadow-api-hunter/packages/proto/v1;protov1";
+
+enum HttpMethod {
+  HTTP_METHOD_UNSPECIFIED = 0;
+  HTTP_METHOD_GET = 1;
+  HTTP_METHOD_POST = 2;
+  HTTP_METHOD_PUT = 3;
+  HTTP_METHOD_DELETE = 4;
+  HTTP_METHOD_PATCH = 5;
+  HTTP_METHOD_HEAD = 6;
+  HTTP_METHOD_OPTIONS = 7;
+  HTTP_METHOD_CONNECT = 8;
+  HTTP_METHOD_TRACE = 9;
+}
+
+enum TlsObservationMode {
+  TLS_OBSERVATION_UNSPECIFIED = 0;
+  TLS_OBSERVATION_TERMINATED_GATEWAY = 1;
+  TLS_OBSERVATION_PASSIVE_MIRROR = 2;
+  TLS_OBSERVATION_EBPF_UPROBE = 3;
+  TLS_OBSERVATION_LOG_STREAM = 4;
+}
+
+enum DataClassification {
+  DATA_CLASSIFICATION_UNSPECIFIED = 0;
+  DATA_CLASSIFICATION_PUBLIC = 1;
+  DATA_CLASSIFICATION_INTERNAL = 2;
+  DATA_CLASSIFICATION_CONFIDENTIAL = 3;
+  DATA_CLASSIFICATION_RESTRICTED = 4;
+  DATA_CLASSIFICATION_REGULATED_PII = 5;
+  DATA_CLASSIFICATION_REGULATED_PCI = 6;
+  DATA_CLASSIFICATION_REGULATED_PHI = 7;
+}
+
+// AuthSignal conveys authentication telemetry without exposing secrets or credentials.
+// Per ADR-0003 & DATA_CONTRACTS.md: No bearer tokens, API keys, or raw cookies allowed.
+message AuthSignal {
+  bool auth_present = 1;
+  string auth_scheme = 2;            // e.g. "Bearer", "ApiKey", "MutualTLS", "Basic"
+  string token_type = 3;             // e.g. "JWT", "Opaque", "SessionId"
+  string key_id = 4;                 // Key identifier / issuer thumbprint (non-secret)
+  string subject_pseudonym = 5;      // Irreversible cryptographic hash of subject/user identity
+  repeated string granted_scopes = 6;
+  bool token_expired_at_observation = 7;
+}
+
+// Provenance tracks source telemetry origin and sensor attribution.
+message Provenance {
+  string sensor_version = 1;
+  string adapter_type = 2;          // e.g. "nginx", "envoy", "kong", "pcap", "ebpf"
+  string ingestion_pipeline = 3;
+  int64 capture_timestamp_ns = 4;
+  double source_confidence = 5;     // 0.0 to 1.0
+}
+
+// ApiObservation represents a single normalized, redacted wire observation.
+message ApiObservation {
+  // Core Envelope
+  string schema_version = 1;        // "v1.0.0"
+  string event_id = 2;              // UUIDv4
+  string tenant_id = 3;             // Multi-tenant partition key
+  string deployment_id = 4;
+  string node_id = 5;               // Sensor / collector node ID
+  string source_id = 6;             // Sensor instance or interface ID
+  int64 occurred_at_utc = 7;        // Epoch millis
+  int64 ingested_at_utc = 8;        // Epoch millis
+  string trace_id = 9;              // OpenTelemetry trace ID (if present)
+  string policy_version = 10;       // Policy snapshot hash active during observation
+
+  // Network & Transport
+  string protocol = 11;             // "HTTP/1.1", "HTTP/2", "HTTP/3", "gRPC"
+  string scheme = 12;               // "http", "https"
+  string host_hash_or_domain = 13;  // Target hostname or pseudonymized hash
+  int32 port = 14;
+  TlsObservationMode tls_observation_mode = 15;
+
+  // Request Semantics
+  HttpMethod http_method = 16;
+  string raw_path = 17;             // Original observed path before parameter collapse
+  string normalized_route = 18;     // e.g. "/api/v1/users/{userId}/profile"
+  string route_fingerprint = 19;    // Canonical hash for route clustering
+  int32 status_code = 20;           // HTTP status code
+  int64 request_size = 21;          // Content-Length or wire bytes
+  int64 response_size = 22;
+
+  // Authentication & Session
+  AuthSignal auth_signal = 23;
+  string client_pseudonym = 24;     // Salted HMAC of client IP (never raw client IP)
+  string session_pseudonym = 25;    // Salted HMAC of session/cookie token
+  string graphql_operation_hash = 26;
+
+  // Payload Shape & Sensitivity Metadata (Strictly zero raw payload bodies)
+  string content_type = 27;
+  repeated string request_field_names_redacted = 28;   // Top-level / nested JSON keys only
+  repeated string response_field_names_redacted = 29;
+  DataClassification data_classification = 30;
+  repeated string sensitive_data_classes = 31;        // e.g. "EMAIL", "IBAN", "SSN"
+
+  // Attribution
+  Provenance provenance = 32;
+}

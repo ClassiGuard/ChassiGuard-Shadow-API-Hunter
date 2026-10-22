@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://shadow-api-hunter.enterprise/schemas/v1/api_observation.schema.json",
+  "title": "ApiObservation",
+  "description": "Normalized, privacy-redacted API wire observation",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "event_id",
+    "tenant_id",
+    "deployment_id",
+    "node_id",
+    "source_id",
+    "occurred_at_utc",
+    "ingested_at_utc",
+    "http_method",
+    "normalized_route",
+    "route_fingerprint",
+    "status_code",
+    "data_classification"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deployment_id": {
+      "type": "string"
+    },
+    "node_id": {
+      "type": "string"
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "occurred_at_utc": {
+      "type": "integer"
+    },
+    "ingested_at_utc": {
+      "type": "integer"
+    },
+    "trace_id": {
+      "type": "string"
+    },
+    "policy_version": {
+      "type": "string"
+    },
+    "protocol": {
+      "type": "string"
+    },
+    "scheme": {
+      "type": "string",
+      "enum": ["http", "https"]
+    },
+    "host_hash_or_domain": {
+      "type": "string"
+    },
+    "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535
+    },
+    "tls_observation_mode": {
+      "type": "string",
+      "enum": [
+        "TLS_OBSERVATION_UNSPECIFIED",
+        "TLS_OBSERVATION_TERMINATED_GATEWAY",
+        "TLS_OBSERVATION_PASSIVE_MIRROR",
+        "TLS_OBSERVATION_EBPF_UPROBE",
+        "TLS_OBSERVATION_LOG_STREAM"
+      ]
+    },
+    "http_method": {
+      "type": "string",
+      "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "CONNECT", "TRACE"]
+    },
+    "raw_path": {
+      "type": "string"
+    },
+    "normalized_route": {
+      "type": "string"
+    },
+    "route_fingerprint": {
+      "type": "string"
+    },
+    "status_code": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    },
+    "request_size": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "response_size": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "auth_signal": {
+      "type": "object",
+      "required": ["auth_present"],
+      "properties": {
+        "auth_present": { "type": "boolean" },
+        "auth_scheme": { "type": "string" },
+        "token_type": { "type": "string" },
+        "key_id": { "type": "string" },
+        "subject_pseudonym": { "type": "string" },
+        "granted_scopes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "token_expired_at_observation": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "client_pseudonym": {
+      "type": "string"
+    },
+    "session_pseudonym": {
+      "type": "string"
+    },
+    "graphql_operation_hash": {
+      "type": "string"
+    },
+    "content_type": {
+      "type": "string"
+    },
+    "request_field_names_redacted": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "response_field_names_redacted": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "data_classification": {
+      "type": "string",
+      "enum": [
+        "DATA_CLASSIFICATION_UNSPECIFIED",
+        "DATA_CLASSIFICATION_PUBLIC",
+        "DATA_CLASSIFICATION_INTERNAL",
+        "DATA_CLASSIFICATION_CONFIDENTIAL",
+        "DATA_CLASSIFICATION_RESTRICTED",
+        "DATA_CLASSIFICATION_REGULATED_PII",
+        "DATA_CLASSIFICATION_REGULATED_PCI",
+        "DATA_CLASSIFICATION_REGULATED_PHI"
+      ]
+    },
+    "sensitive_data_classes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["sensor_version", "adapter_type", "source_confidence"],
+      "properties": {
+        "sensor_version": { "type": "string" },
+        "adapter_type": { "type": "string" },
+        "ingestion_pipeline": { "type": "string" },
+        "capture_timestamp_ns": { "type": "integer" },
+        "source_confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

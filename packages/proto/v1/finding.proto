@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package shadowapi.risk.v1;
+
+option go_package = "github.com/shadow-api-hunter/packages/proto/v1;protov1";
+
+enum FindingCategory {
+  FINDING_CATEGORY_UNSPECIFIED = 0;
+  FINDING_CATEGORY_SHADOW_ENDPOINT = 1;        // Endpoint discovered in production with no spec
+  FINDING_CATEGORY_ZOMBIE_VERSION = 2;          // Retired/deprecated API version still serving traffic
+  FINDING_CATEGORY_SENSITIVE_DATA_EXPOSURE = 3;// Regulated data exposed without strict classification
+  FINDING_CATEGORY_AUTH_POSTURE_ANOMALY = 4;   // Unauthenticated calls observed on sensitive path
+  FINDING_CATEGORY_BOLA_HYPOTHESIS = 5;        // Broken Object Level Authorization hypothesis
+  FINDING_CATEGORY_BFLA_HYPOTHESIS = 6;        // Broken Function Level Authorization hypothesis
+  FINDING_CATEGORY_ROGUE_ENDPOINT = 7;         // Endpoint on unapproved host or violating governance
+}
+
+enum FindingSeverity {
+  FINDING_SEVERITY_UNSPECIFIED = 0;
+  FINDING_SEVERITY_INFO = 1;
+  FINDING_SEVERITY_LOW = 2;
+  FINDING_SEVERITY_MEDIUM = 3;
+  FINDING_SEVERITY_HIGH = 4;
+  FINDING_SEVERITY_CRITICAL = 5;
+}
+
+enum FindingConfidence {
+  FINDING_CONFIDENCE_UNSPECIFIED = 0;
+  FINDING_CONFIDENCE_LOW = 1;                  // Single telemetry source / few observations
+  FINDING_CONFIDENCE_MEDIUM = 2;               // Multiple observations across distinct sessions
+  FINDING_CONFIDENCE_HIGH = 3;                 // Cross-validated by independent sensors
+  FINDING_CONFIDENCE_VERIFIED = 4;             // Validated by authorized active verification test
+}
+
+enum FindingStatus {
+  FINDING_STATUS_UNSPECIFIED = 0;
+  FINDING_STATUS_HYPOTHESIS = 1;               // Passive-only signal; not yet reviewed
+  FINDING_STATUS_UNDER_REVIEW = 2;             // Assigned to analyst or AppSec lead
+  FINDING_STATUS_VALIDATED = 3;                // Confirmed true finding by test or operator
+  FINDING_STATUS_FALSE_POSITIVE = 4;           // Disproven; suppresses alerts with audit trail
+  FINDING_STATUS_ACCEPTED_RISK = 5;            // Business acknowledged risk with expiry lease
+}
+
+message RiskScoreDetails {
+  double overall_score = 1;                    // 0.0 to 100.0
+  double exposure_likelihood = 2;             // 0.0 to 10.0
+  double business_impact = 3;                 // 0.0 to 10.0
+  double confidence_multiplier = 4;           // 0.0 to 1.0
+  repeated string reason_codes = 5;           // e.g. ["UNINVENTORIED_ROUTE", "POSSIBLE_SENSITIVE_FIELD"]
+}
+
+message Finding {
+  string schema_version = 1;                   // "v1.0.0"
+  string finding_id = 2;                       // UUIDv4
+  string tenant_id = 3;
+  string rule_id = 4;                          // Detection rule identifier
+  FindingCategory category = 5;
+  FindingSeverity severity = 6;
+  FindingConfidence confidence = 7;
+  FindingStatus status = 8;
+
+  repeated string asset_ids = 9;               // Associated ApiAsset identifiers
+  repeated string evidence_refs = 10;          // Encrypted evidence vault record pointers
+  string reproduction_scope_id = 11;           // Approved active test scope (if authorized)
+  string policy_version = 12;                  // Policy snapshot used for evaluation
+  string model_version = 13;                   // Local AI model version (if model router was used)
+
+  RiskScoreDetails risk_details = 14;
+
+  int64 first_observed_utc = 15;               // Epoch millis
+  int64 last_observed_utc = 16;
+  int64 created_at_utc = 17;
+  int64 updated_at_utc = 18;
+  string assigned_to_user_id = 19;
+  string suppression_reason = 20;
+  int64 suppression_expires_utc = 21;
+}
