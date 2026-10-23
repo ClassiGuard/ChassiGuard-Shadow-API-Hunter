@@ -80,6 +80,8 @@ docs/decisions/
 docs/engineering/
 docs/product/
 docs/security/
+docs/architecture/DATA_CONTRACTS.md
+docs/architecture/SQL_SERVER.md
 .agent/
 .cursor/
 AGENTS.md

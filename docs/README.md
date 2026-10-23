@@ -17,8 +17,6 @@ Welcome to the technical documentation repository for ClassiGuard Shadow API Hun
   - SQL Server Backup, Disaster Recovery & High Availability SOP (`SQL_BACKUP_RECOVERY.md`)
 - **[`architecture/`](architecture/)**: 
   - Architectural overview and engine specifications (`OVERVIEW.md`)
-  - SQL Server database prerequisites, schema design, and Always On configuration (`SQL_SERVER.md`)
-  - Wire and telemetry data contracts (`DATA_CONTRACTS.md`)
 
 ---
 *ClassiGuard Shadow API Hunter — Enterprise API Security*
