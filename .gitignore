@@ -61,6 +61,10 @@ infra/
 installers/
 scripts/
 tests/
+tools/
+ui/
+payload.zip
+payload_staging/
 packages/authz/
 packages/config/
 packages/policy-dsl/
@@ -68,8 +72,14 @@ packages/telemetry/
 /toolchains.json
 /package.json
 
-# Internal Architecture, Product Plans & Documentation (Strictly Private)
-docs/
+# Internal Planning, Context & Private Product Documentation (Strictly Private)
+docs/context/
+docs/roadmap/
+docs/process/
+docs/decisions/
+docs/engineering/
+docs/product/
+docs/security/
 .agent/
 .cursor/
 AGENTS.md

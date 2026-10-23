@@ -40,8 +40,8 @@ We ship direct, pre-compiled release artifacts with **zero runtime dependencies*
 
 ```
 ├── dist/
-│   ├── ClassiGuard-Shadow-API-Hunter-Setup.exe          # Single Standalone Windows Installer (7.7 MB)
-│   └── classiguard-shadow-api-hunter-linux-v1.0.0.tar.gz # Single Self-Contained Linux Sensor Fleet (51.0 MB)
+│   ├── ClassiGuard-Shadow-API-Hunter-Setup.exe          # Single Standalone Windows Setup Wizard (56.0 MB)
+│   └── classiguard-shadow-api-hunter-linux-v1.0.0.tar.gz # Single Self-Contained Linux Sensor Fleet (48.7 MB)
 └── packages/
     ├── proto/v1/                                        # Protobuf v3 Telemetry Contracts
     └── schemas/v1/                                      # JSON Schema Draft-07 Specifications
@@ -51,16 +51,26 @@ We ship direct, pre-compiled release artifacts with **zero runtime dependencies*
 
 ## 3. Windows Installation (Single Executable — Zero CLI)
 
-For Windows 10, Windows 11, and Windows Server (2016/2019/2022):
+For Windows 10, Windows 11, and Windows Server (2016/2019/2022/2025):
 
-### Steps
+### Standard Setup Flow
 1. Download [**`dist/ClassiGuard-Shadow-API-Hunter-Setup.exe`**](dist/ClassiGuard-Shadow-API-Hunter-Setup.exe).
 2. **Double-click `ClassiGuard-Shadow-API-Hunter-Setup.exe`**.
-3. **Done!** The installer automatically:
-   - Self-elevates with Windows Administrator permissions.
-   - Deploys the pre-compiled management services and web UI to `C:\Program Files\ClassiGuard\ShadowAPI\`.
-   - Starts the Management Service on port 8080.
-   - **Automatically opens the Management Console in your default browser at `http://localhost:8080`**.
+3. Follow the interactive Setup Wizard:
+   - Accept the **6-Month POC & Indian IT Act License Agreement**.
+   - Select your destination directory (default `C:\Program Files\ClassiGuard\Shadow-API-Hunter\`).
+   - Configure the Web Management Console port (default `8080`).
+   - Enable SCM Service Resilience and Shortcuts.
+   - Click **Install**.
+4. **Done!** The installer automatically:
+   - Installs the **ClassiGuard Enterprise Management Module** (`ClassiGuard.Management.exe`), Web Management Console, SQL migrations, and fleet orchestration packages.
+   - Registers the service in Windows Service Control Manager with **Resilient Auto-Recovery** (automatically restarts within 5 seconds if terminated in Task Manager).
+   - Auto-binds the native uninstaller in Windows **Programs and Features** (`appwiz.cpl`).
+   - Launches the **Management Module Dashboard** and opens the Management Console at `http://localhost:8080/`.
+
+### Standard Uninstallation
+- Open Windows **Control Panel → Programs and Features** (or **Settings → Installed apps**).
+- Select **ClassiGuard Shadow API Hunter Enterprise** and click **Uninstall**. All services, registry entries, and shortcuts are cleaned up automatically.
 
 > [!NOTE]
 > **No CLI typing, no PowerShell scripts, and no Node.js required.** The executable is 100% self-contained.
